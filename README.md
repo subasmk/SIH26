@@ -1,0 +1,1 @@
+# SmartInspect Deployment Configuration
