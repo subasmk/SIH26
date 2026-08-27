@@ -40,61 +40,72 @@ const Layout = ({ children }) => {
   const navItems = getNavItems();
 
   return (
-    <div className="min-h-screen bg-[#FFF5E6] text-[#111827]">
-      <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-white border-r border-[#FAD4C0] min-h-screen fixed left-0 top-0 transition-all duration-300 z-30 shadow-sm`}>
-        <div className="p-4 border-b border-[#FAD4C0]/60">
+    <div className="min-h-screen bg-[#0f0c1b] text-purple-100 font-sans selection:bg-purple-600 selection:text-white">
+      {/* Sidebar */}
+      <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-[#141024] border-r border-purple-900/40 min-h-screen fixed left-0 top-0 transition-all duration-300 z-30 shadow-2xl shadow-black`}>
+        <div className="p-4 border-b border-purple-900/40">
           <div className="flex items-center justify-between">
             {sidebarOpen && (
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-md bg-[#FAD4C0] flex items-center justify-center font-bold text-[#111827] text-lg shadow-sm">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center font-extrabold text-white text-xl shadow-lg shadow-purple-600/40 border border-purple-400/30">
                   S
                 </div>
-                <h1 className="text-[#111827] text-lg font-bold tracking-tight">SmartInspect</h1>
+                <div>
+                  <h1 className="text-white text-base font-bold tracking-wide">SmartInspect</h1>
+                  <p className="text-[10px] font-mono text-purple-400/70 tracking-widest uppercase">DoSJE Portal</p>
+                </div>
               </div>
             )}
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-[#80A1C1] hover:text-[#111827] p-1.5 rounded-md hover:bg-[#FFF5E6] transition-colors">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-purple-400 hover:text-white p-2 rounded-xl hover:bg-purple-900/40 transition-colors">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
           </div>
         </div>
-        <nav className="mt-4 px-2 space-y-1">
+        <nav className="mt-5 px-3 space-y-1.5">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-all ${
+                className={`flex items-center px-3.5 py-3 rounded-xl text-sm font-semibold transition-all duration-200 group ${
                   isActive
-                    ? 'bg-[#FAD4C0] text-[#111827] font-semibold shadow-sm'
-                    : 'text-[#111827]/70 hover:bg-[#FFF5E6] hover:text-[#111827]'
+                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30'
+                    : 'text-purple-300/70 hover:bg-purple-900/30 hover:text-white'
                 }`}
               >
-                <svg className={`w-5 h-5 ${isActive ? 'text-[#111827]' : 'text-[#80A1C1]'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className={`w-5 h-5 transition-transform group-hover:scale-110 ${isActive ? 'text-white' : 'text-purple-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
                 </svg>
-                {sidebarOpen && <span className="ml-3">{item.label}</span>}
+                {sidebarOpen && <span className="ml-3.5 tracking-wide">{item.label}</span>}
               </Link>
             );
           })}
         </nav>
       </div>
+
+      {/* Main Content View */}
       <div className={`${sidebarOpen ? 'ml-64' : 'ml-20'} transition-all duration-300`}>
-        <header className="bg-white/80 backdrop-blur-md border-b border-[#FAD4C0]/50 px-6 py-4 flex justify-between items-center sticky top-0 z-20 shadow-xs">
-          <h2 className="text-xl font-bold text-[#111827]">
-            {navItems.find(item => item.path === location.pathname)?.label || 'SmartInspect'}
-          </h2>
+        <header className="bg-[#141024]/80 backdrop-blur-xl border-b border-purple-900/40 px-8 py-4 flex justify-between items-center sticky top-0 z-20 shadow-lg shadow-black/20">
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-bold text-white tracking-wide">
+              {navItems.find(item => item.path === location.pathname)?.label || 'SmartInspect'}
+            </h2>
+          </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-[#111827]">{user?.name}</span>
+            <div className="text-right">
+              <p className="text-sm font-semibold text-purple-100">{user?.name}</p>
+              <p className="text-xs font-mono text-purple-400/70">{user?.email}</p>
+            </div>
             <span className="badge badge-info">{user?.role}</span>
-            <button onClick={handleLogout} className="btn-danger text-xs px-3 py-1.5">
+            <button onClick={handleLogout} className="btn-danger text-xs px-3.5 py-2">
               Logout
             </button>
           </div>
         </header>
-        <main className="p-6">{children}</main>
+        <main className="p-8">{children}</main>
       </div>
     </div>
   );

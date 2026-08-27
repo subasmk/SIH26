@@ -6,25 +6,23 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        bento: {
-          primary: '#FAD4C0',
-          secondary: '#80A1C1',
-          success: '#16A34A',
-          warning: '#D97706',
-          danger: '#DC2626',
-          surface: '#FFF5E6',
-          text: '#111827',
-          neutral: '#FFF5E6',
+        purple: {
+          50: '#f5f3ff',
+          100: '#ede9fe',
+          200: '#ddd6fe',
+          300: '#c4b5fd',
+          400: '#a78bfa',
+          500: '#8b5cf6',
+          600: '#7c3aed',
+          700: '#6d28d9',
+          800: '#5b21b6',
+          900: '#4c1d95',
+          950: '#2e1065',
         }
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
-      },
-      borderRadius: {
-        'bento-sm': '4px',
-        'bento-md': '8px',
-        'bento-lg': '16px',
       }
     },
   },

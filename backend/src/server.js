@@ -20,6 +20,7 @@ app.use('/api/risk', require('./routes/risk'));
 app.use('/api/alerts', require('./routes/alerts'));
 app.use('/api/reports', require('./routes/reports'));
 app.use('/api/organization', require('./routes/organization'));
+app.use('/api/surveillance', require('./routes/surveillance'));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });

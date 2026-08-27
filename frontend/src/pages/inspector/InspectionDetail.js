@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../../components/Layout';
-import axios from 'axios';
+import api from '../../services/api';
 
 const InspectionDetail = () => {
   const { id } = useParams();
@@ -19,7 +19,7 @@ const InspectionDetail = () => {
 
   const fetchInspection = useCallback(async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/inspections/${id}`);
+      const res = await api.get(`/inspections/${id}`);
       setInspection(res.data);
       setChecklists(res.data.checklists || []);
       if (res.data.status === 'ASSIGNED') setStep(1);
@@ -38,7 +38,7 @@ const InspectionDetail = () => {
 
   const startInspection = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/inspections/${id}/status`, { status: 'IN_PROGRESS' });
+      await api.put(`/inspections/${id}/status`, { status: 'IN_PROGRESS' });
       setStep(2);
       fetchInspection();
     } catch (error) {
@@ -52,7 +52,7 @@ const InspectionDetail = () => {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-          const res = await axios.post(`http://localhost:5000/api/inspections/${id}/verify-gps`, { latitude, longitude });
+          const res = await api.post(`/inspections/${id}/verify-gps`, { latitude, longitude });
           setGpsStatus(res.data);
           setGpsLoading(false);
           if (res.data.verified) {
@@ -83,7 +83,7 @@ const InspectionDetail = () => {
         status: c.status,
         remarks: c.remarks
       }));
-      await axios.put(`http://localhost:5000/api/inspections/${id}/checklist`, { checklists: payload });
+      await api.put(`/inspections/${id}/checklist`, { checklists: payload });
       setStep(4);
     } catch (error) {
       console.error('Error submitting checklist:', error);
@@ -96,7 +96,7 @@ const InspectionDetail = () => {
     formData.append('latitude', inspection?.inspectorLatitude || '');
     formData.append('longitude', inspection?.inspectorLongitude || '');
     try {
-      const res = await axios.post(`http://localhost:5000/api/evidence/${id}`, formData, {
+      const res = await api.post(`/evidence/${id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setEvidenceList([...evidenceList, res.data]);
@@ -113,7 +113,7 @@ const InspectionDetail = () => {
   const submitInspection = async () => {
     setSubmitting(true);
     try {
-      await axios.post(`http://localhost:5000/api/inspections/${id}/complete`, { overallRemarks: remarks });
+      await api.post(`/inspections/${id}/complete`, { overallRemarks: remarks });
       setStep(6);
       fetchInspection();
     } catch (error) {
@@ -130,7 +130,7 @@ const InspectionDetail = () => {
     return (
       <Layout>
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
         </div>
       </Layout>
     );
@@ -140,7 +140,7 @@ const InspectionDetail = () => {
     return (
       <Layout>
         <div className="text-center py-12">
-          <p className="text-gray-500">Inspection not found</p>
+          <p className="text-purple-200">Inspection not found</p>
         </div>
       </Layout>
     );
@@ -158,19 +158,16 @@ const InspectionDetail = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <button onClick={() => navigate('/inspector/dashboard')} className="text-blue-600 hover:underline inline-flex items-center">
-          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Back to Inspections
+        <button onClick={() => navigate('/inspector/dashboard')} className="text-purple-300 hover:text-white font-mono text-xs font-bold inline-flex items-center">
+          ← Back to My Inspections
         </button>
 
         <div className="card">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">{inspection.inspectionId}</h1>
-              <p className="text-gray-600">{inspection.project?.name}</p>
-              <p className="text-sm text-gray-500">{inspection.project?.location}</p>
+              <h1 className="text-2xl font-extrabold text-white">{inspection.inspectionId}</h1>
+              <p className="text-purple-200 font-semibold mt-1">{inspection.project?.name}</p>
+              <p className="text-xs text-purple-300 font-mono mt-1">{inspection.project?.location}</p>
             </div>
             <div className="text-right">
               <span className={`badge ${
@@ -178,9 +175,9 @@ const InspectionDetail = () => {
                 inspection.priority === 'MEDIUM' ? 'badge-warning' : 'badge-gray'
               }`}>{inspection.priority}</span>
               {inspection.type === 'SURPRISE' && <span className="badge badge-danger ml-2">Surprise</span>}
-              <p className="text-sm text-gray-500 mt-2">Status: {inspection.status?.replace('_', ' ')}</p>
+              <p className="text-xs font-mono text-purple-200 mt-2">Status: {inspection.status?.replace('_', ' ')}</p>
               {inspection.complianceScore && (
-                <p className="text-sm font-medium mt-1">Compliance: {inspection.complianceScore}%</p>
+                <p className="text-xs font-mono font-bold text-emerald-400 mt-1">Compliance: {inspection.complianceScore}%</p>
               )}
             </div>
           </div>
@@ -190,16 +187,16 @@ const InspectionDetail = () => {
           <div className="flex items-center justify-between">
             {steps.map((s, i) => (
               <React.Fragment key={s.num}>
-                <div className={`flex items-center gap-2 ${step >= s.num ? 'text-blue-600' : 'text-gray-400'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                    step >= s.num ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+                <div className={`flex items-center gap-2 ${step >= s.num ? 'text-purple-300' : 'text-purple-500/40'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold font-mono ${
+                    step >= s.num ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/40' : 'bg-purple-950/60 text-purple-400/50 border border-purple-800/40'
                   }`}>
                     {step > s.num ? '✓' : s.num}
                   </div>
-                  <span className="text-sm font-medium hidden md:block">{s.label}</span>
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider hidden md:block">{s.label}</span>
                 </div>
                 {i < steps.length - 1 && (
-                  <div className={`flex-1 h-0.5 mx-2 ${step > s.num ? 'bg-blue-600' : 'bg-gray-200'}`} />
+                  <div className={`flex-1 h-0.5 mx-2 ${step > s.num ? 'bg-purple-600' : 'bg-purple-950'}`} />
                 )}
               </React.Fragment>
             ))}
@@ -207,79 +204,77 @@ const InspectionDetail = () => {
         </div>
 
         {step === 1 && (
-          <div className="card text-center py-12">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="card text-center py-12 space-y-4">
+            <div className="w-16 h-16 bg-purple-600/30 border border-purple-400/30 rounded-2xl flex items-center justify-center mx-auto text-purple-300">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold mb-2">Ready to Start Inspection?</h3>
-            <p className="text-gray-500 mb-6">Project: {inspection.project?.name}</p>
-            <button onClick={startInspection} className="btn-primary text-lg px-8 py-3">
-              Start Inspection
+            <h3 className="text-xl font-bold text-white">Ready to Start Inspection?</h3>
+            <p className="text-purple-200 text-sm">Target Project: {inspection.project?.name}</p>
+            <button onClick={startInspection} className="btn-primary text-base px-8 py-3">
+              Start Inspection Session
             </button>
           </div>
         )}
 
         {step === 2 && (
-          <div className="card text-center py-12">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="card text-center py-12 space-y-4">
+            <div className="w-16 h-16 bg-emerald-600/30 border border-emerald-400/30 rounded-2xl flex items-center justify-center mx-auto text-emerald-300">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold mb-2">GPS Location Verification</h3>
-            <p className="text-gray-500 mb-2">Verify that you are at the project location</p>
-            <p className="text-sm text-gray-400 mb-6">
-              Expected: {inspection.project?.latitude}, {inspection.project?.longitude}
+            <h3 className="text-xl font-bold text-white">GPS Geofence Location Verification</h3>
+            <p className="text-purple-200 text-sm">Verify that you are physically present at the site</p>
+            <p className="text-xs font-mono text-purple-300">
+              Expected Location: {inspection.project?.latitude}, {inspection.project?.longitude}
             </p>
 
             {gpsStatus ? (
-              <div className={`max-w-md mx-auto p-4 rounded-lg ${gpsStatus.verified ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+              <div className={`max-w-md mx-auto p-4 rounded-xl border ${gpsStatus.verified ? 'bg-emerald-950/40 border-emerald-800/50' : 'bg-rose-950/40 border-rose-800/50'}`}>
                 <div className="flex items-center gap-3">
-                  <span className={`text-2xl ${gpsStatus.verified ? '✓' : '✗'}`}>
-                    {gpsStatus.verified ? '✅' : '❌'}
-                  </span>
+                  <span className="text-2xl">{gpsStatus.verified ? '✅' : '❌'}</span>
                   <div className="text-left">
-                    <p className={`font-semibold ${gpsStatus.verified ? 'text-green-700' : 'text-red-700'}`}>
-                      {gpsStatus.verified ? 'VERIFIED' : 'NOT VERIFIED'}
+                    <p className={`font-bold font-mono text-sm ${gpsStatus.verified ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      {gpsStatus.verified ? 'GEOFENCE VERIFIED' : 'NOT VERIFIED'}
                     </p>
                     {gpsStatus.distance !== undefined && (
-                      <p className="text-sm text-gray-600">Distance: {gpsStatus.distance}m</p>
+                      <p className="text-xs font-mono text-purple-200">Distance: {gpsStatus.distance}m</p>
                     )}
-                    <p className="text-sm text-gray-500">{gpsStatus.message}</p>
+                    <p className="text-xs text-purple-200 mt-1">{gpsStatus.message}</p>
                   </div>
                 </div>
               </div>
             ) : (
-              <button onClick={verifyGPS} disabled={gpsLoading} className="btn-primary text-lg px-8 py-3">
-                {gpsLoading ? 'Verifying...' : 'Verify My Location'}
+              <button onClick={verifyGPS} disabled={gpsLoading} className="btn-primary text-base px-8 py-3">
+                {gpsLoading ? 'Acquiring GPS Data...' : 'Verify Geofence Location'}
               </button>
             )}
 
             {gpsStatus && !gpsStatus.verified && (
-              <button onClick={() => setStep(3)} className="btn-secondary mt-4 text-sm">
-                Skip (Not Recommended)
+              <button onClick={() => setStep(3)} className="btn-secondary mt-4 text-xs font-mono">
+                Bypass GPS (Override Logged)
               </button>
             )}
           </div>
         )}
 
         {step === 3 && (
-          <div className="card">
-            <h3 className="text-lg font-semibold mb-4">Inspection Checklist</h3>
-            <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">
-                Progress: <span className="font-semibold">{passedCount}/{totalApplicable}</span> checks passed
+          <div className="card space-y-4">
+            <h3 className="text-lg font-bold text-white">Inspection Checklist</h3>
+            <div className="p-4 bg-[#141024] rounded-xl border border-purple-800/40">
+              <p className="text-xs font-mono text-purple-200">
+                Checklist Progress: <span className="font-bold text-white">{passedCount}/{totalApplicable}</span> passed
                 {totalApplicable > 0 && (
-                  <span className="ml-2">({Math.round((passedCount/totalApplicable)*100)}%)</span>
+                  <span className="ml-2 text-emerald-400">({Math.round((passedCount/totalApplicable)*100)}%)</span>
                 )}
               </p>
-              <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+              <div className="w-full bg-purple-950 rounded-full h-2 mt-2 border border-purple-800/40">
                 <div
-                  className="bg-green-600 h-2 rounded-full transition-all"
+                  className="bg-gradient-to-r from-emerald-500 to-teal-400 h-2 rounded-full transition-all"
                   style={{ width: `${totalApplicable > 0 ? (passedCount/totalApplicable)*100 : 0}%` }}
                 />
               </div>
@@ -292,22 +287,22 @@ const InspectionDetail = () => {
                 return acc;
               }, {})
             ).map(([category, items]) => (
-              <div key={category} className="mb-6">
-                <h4 className="font-medium text-gray-700 mb-3 pb-2 border-b">{category}</h4>
+              <div key={category} className="space-y-2">
+                <h4 className="font-mono text-xs font-bold text-purple-300 uppercase tracking-wider border-b border-purple-800/40 pb-1">{category}</h4>
                 <div className="space-y-2">
-                  {items.map((item, idx) => {
+                  {items.map((item) => {
                     const globalIdx = checklists.indexOf(item);
                     return (
-                      <div key={item.id} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
+                      <div key={item.id} className="flex items-center gap-3 p-3.5 rounded-xl bg-[#141024] border border-purple-800/40">
                         <button
                           onClick={() => toggleChecklist(globalIdx, 'PASS')}
-                          className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-colors ${
-                            item.status === 'PASS' ? 'bg-green-600 border-green-600 text-white' : 'border-gray-300'
+                          className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${
+                            item.status === 'PASS' ? 'bg-emerald-600 border-emerald-500 text-white' : 'border-purple-600/50 bg-purple-950/40'
                           }`}
                         >
                           {item.status === 'PASS' && '✓'}
                         </button>
-                        <span className="text-sm flex-1">{item.item}</span>
+                        <span className="text-sm font-semibold text-white flex-1">{item.item}</span>
                         <span className={`badge ${
                           item.status === 'PASS' ? 'badge-success' :
                           item.status === 'FAIL' ? 'badge-danger' :
@@ -323,19 +318,19 @@ const InspectionDetail = () => {
             ))}
 
             <button onClick={submitChecklist} className="btn-primary mt-4">
-              Submit Checklist
+              Submit Checklist Data
             </button>
           </div>
         )}
 
         {step === 4 && (
-          <div className="card">
-            <h3 className="text-lg font-semibold mb-4">Evidence Upload</h3>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center mb-6">
-              <svg className="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="card space-y-4">
+            <h3 className="text-lg font-bold text-white">Geotagged Evidence Upload</h3>
+            <div className="border-2 border-dashed border-purple-700/50 rounded-2xl p-8 text-center bg-[#141024]">
+              <svg className="w-12 h-12 text-purple-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <p className="text-gray-600 mb-2">Upload photos, documents, or videos</p>
+              <p className="text-sm font-medium text-purple-200 mb-2">Upload on-site evidence photos or documents</p>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -345,21 +340,19 @@ const InspectionDetail = () => {
                 className="hidden"
               />
               <button onClick={() => fileInputRef.current?.click()} className="btn-primary">
-                Select Files
+                Select Evidence Files
               </button>
             </div>
 
             {evidenceList.length > 0 && (
               <div className="space-y-3">
-                <h4 className="font-medium text-gray-700">Uploaded Evidence</h4>
+                <h4 className="font-mono text-xs font-bold text-purple-300 uppercase">Uploaded Files ({evidenceList.length})</h4>
                 {evidenceList.map((ev, idx) => (
-                  <div key={ev.id || idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    <span className="text-2xl">
-                      {ev.type === 'IMAGE' ? '📷' : ev.type === 'VIDEO' ? '🎥' : '📄'}
-                    </span>
+                  <div key={ev.id || idx} className="flex items-center gap-3 p-3.5 bg-[#141024] border border-purple-800/40 rounded-xl">
+                    <span className="text-xl">{ev.type === 'IMAGE' ? '📷' : '📄'}</span>
                     <div className="flex-1">
-                      <p className="text-sm font-medium">{ev.fileName}</p>
-                      <p className="text-xs text-gray-500">{ev.type} • {new Date(ev.timestamp).toLocaleString()}</p>
+                      <p className="text-sm font-semibold text-white">{ev.fileName}</p>
+                      <p className="text-xs font-mono text-purple-300">{ev.type} • {new Date(ev.timestamp).toLocaleString()}</p>
                     </div>
                     <span className="badge badge-success">Uploaded</span>
                   </div>
@@ -367,74 +360,51 @@ const InspectionDetail = () => {
               </div>
             )}
 
-            <div className="flex gap-3 mt-6">
-              <button onClick={() => setStep(5)} className="btn-primary">
+            <div className="flex gap-3 pt-4">
+              <button onClick={() => setStep(5)} className="btn-primary flex-1">
                 Continue to Remarks
-              </button>
-              <button onClick={() => setStep(5)} className="btn-secondary">
-                Skip Evidence
               </button>
             </div>
           </div>
         )}
 
         {step === 5 && (
-          <div className="card">
-            <h3 className="text-lg font-semibold mb-4">Remarks & Submission</h3>
+          <div className="card space-y-4">
+            <h3 className="text-lg font-bold text-white">Remarks & Final Submission</h3>
             <div className="space-y-4">
               <div>
-                <label className="label">Overall Remarks</label>
+                <label className="label">Overall Observations & Remarks</label>
                 <textarea
                   value={remarks}
                   onChange={(e) => setRemarks(e.target.value)}
                   className="input"
-                  rows="5"
-                  placeholder="Enter your observations, issues found, and recommendations..."
+                  rows="4"
+                  placeholder="Enter detailed field remarks, discrepancies found, and recommendations..."
                 />
               </div>
 
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium mb-2">Inspection Summary</h4>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-gray-500">GPS Verified</p>
-                    <p className={`font-medium ${gpsStatus?.verified ? 'text-green-600' : 'text-red-600'}`}>
-                      {gpsStatus?.verified ? 'Yes' : inspection.gpsVerified ? 'Yes' : 'No'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Checklist</p>
-                    <p className="font-medium">{passedCount}/{totalApplicable} passed</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Evidence Uploaded</p>
-                    <p className="font-medium">{evidenceList.length} files</p>
-                  </div>
-                </div>
-              </div>
-
-              <button onClick={submitInspection} disabled={submitting} className="btn-success w-full py-3 text-lg">
-                {submitting ? 'Submitting...' : 'Submit Inspection'}
+              <button onClick={submitInspection} disabled={submitting} className="btn-success w-full py-3.5 text-base font-bold">
+                {submitting ? 'Submitting Report...' : 'Submit Complete Inspection'}
               </button>
             </div>
           </div>
         )}
 
         {step === 6 && (
-          <div className="card text-center py-12">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="card text-center py-12 space-y-4">
+            <div className="w-16 h-16 bg-emerald-600/30 border border-emerald-400/30 rounded-2xl flex items-center justify-center mx-auto text-emerald-300">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="text-2xl font-bold text-green-600 mb-2">Inspection Completed!</h3>
-            <p className="text-gray-500 mb-2">Inspection ID: {inspection.inspectionId}</p>
+            <h3 className="text-2xl font-bold text-white">Inspection Completed!</h3>
+            <p className="text-purple-200 font-mono text-sm">Inspection ID: {inspection.inspectionId}</p>
             {inspection.complianceScore && (
-              <p className="text-lg font-semibold mb-6">
-                Compliance Score: <span className="text-blue-600">{inspection.complianceScore}%</span>
+              <p className="text-lg font-bold text-emerald-400 font-mono">
+                Compliance Score: {inspection.complianceScore}%
               </p>
             )}
-            <button onClick={() => navigate('/inspector/dashboard')} className="btn-primary">
+            <button onClick={() => navigate('/inspector/dashboard')} className="btn-primary mt-4">
               Back to Dashboard
             </button>
           </div>

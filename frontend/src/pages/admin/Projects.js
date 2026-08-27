@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../../components/Layout';
-import axios from 'axios';
+import api from '../../services/api';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
@@ -29,7 +29,7 @@ const Projects = () => {
 
   const fetchProjects = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/projects');
+      const res = await api.get('/projects');
       setProjects(res.data);
     } catch (error) {
       console.error('Error fetching projects:', error);
@@ -40,7 +40,7 @@ const Projects = () => {
 
   const fetchOrganizations = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/admin/organizations');
+      const res = await api.get('/admin/organizations');
       setOrganizations(res.data);
     } catch (error) {
       console.error('Error fetching organizations:', error);
@@ -50,7 +50,7 @@ const Projects = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/projects', formData);
+      await api.post('/projects', formData);
       setShowModal(false);
       setFormData({
         name: '',
@@ -92,7 +92,7 @@ const Projects = () => {
     return (
       <Layout>
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
         </div>
       </Layout>
     );
@@ -127,30 +127,30 @@ const Projects = () => {
           </button>
         </div>
 
-        <div className="card overflow-hidden">
+        <div className="card overflow-hidden p-0">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-[#141024] border-b border-purple-800/40 text-purple-300">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Project Name</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Organization</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Location</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Status</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Risk</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Beneficiaries</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Actions</th>
+                <th className="px-5 py-3.5 text-left text-xs font-mono uppercase tracking-wider">Project Name</th>
+                <th className="px-5 py-3.5 text-left text-xs font-mono uppercase tracking-wider">Organization</th>
+                <th className="px-5 py-3.5 text-left text-xs font-mono uppercase tracking-wider">Location</th>
+                <th className="px-5 py-3.5 text-left text-xs font-mono uppercase tracking-wider">Status</th>
+                <th className="px-5 py-3.5 text-left text-xs font-mono uppercase tracking-wider">Risk</th>
+                <th className="px-5 py-3.5 text-left text-xs font-mono uppercase tracking-wider">Beneficiaries</th>
+                <th className="px-5 py-3.5 text-left text-xs font-mono uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-purple-900/30">
               {filteredProjects.map(project => (
-                <tr key={project.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <Link to={`/admin/projects/${project.id}`} className="text-blue-600 hover:underline font-medium">
+                <tr key={project.id} className="hover:bg-purple-900/20 transition-colors">
+                  <td className="px-5 py-4">
+                    <Link to={`/admin/projects/${project.id}`} className="text-purple-300 hover:text-white font-semibold">
                       {project.name}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{project.organization?.name}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{project.location}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-5 py-4 text-sm text-purple-200">{project.organization?.name || 'N/A'}</td>
+                  <td className="px-5 py-4 text-sm text-purple-200">{project.location}</td>
+                  <td className="px-5 py-4">
                     <span className={`badge ${
                       project.status === 'ACTIVE' ? 'badge-success' :
                       project.status === 'INACTIVE' ? 'badge-gray' :
@@ -159,10 +159,10 @@ const Projects = () => {
                       {project.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3">{getRiskBadge(project.riskScores)}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{project.beneficiaryCount || 0}</td>
-                  <td className="px-4 py-3">
-                    <Link to={`/admin/projects/${project.id}`} className="text-blue-600 hover:text-blue-800">
+                  <td className="px-5 py-4">{getRiskBadge(project.riskScores)}</td>
+                  <td className="px-5 py-4 text-sm font-mono text-white">{project.beneficiaryCount || 0}</td>
+                  <td className="px-5 py-4">
+                    <Link to={`/admin/projects/${project.id}`} className="btn-secondary text-xs px-3 py-1.5">
                       View
                     </Link>
                   </td>
@@ -174,9 +174,9 @@ const Projects = () => {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Add New Project</h3>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[9999] p-4">
+          <div className="bg-[#141024] border border-purple-500/50 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <h3 className="text-lg font-bold text-white mb-4">Add New Project</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="label">Project Name</label>
