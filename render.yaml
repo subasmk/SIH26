@@ -1,5 +1,3 @@
-services
-databases
 services:
   - type: web
     name: smartinspect-backend
