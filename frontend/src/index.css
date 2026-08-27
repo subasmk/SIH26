@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -9,60 +11,61 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f3f4f6;
+  background-color: #FFF5E6;
+  color: #111827;
 }
 
 .btn-primary {
-  @apply bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200;
+  @apply bg-[#FAD4C0] text-[#111827] font-semibold px-4 py-2 rounded-md hover:bg-[#f8c3a9] transition-colors duration-200 shadow-sm border border-[#e8ba9f] active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#80A1C1];
 }
 
 .btn-secondary {
-  @apply bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors duration-200;
+  @apply bg-[#80A1C1] text-white font-medium px-4 py-2 rounded-md hover:bg-[#6c91b5] transition-colors duration-200 shadow-sm active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#80A1C1];
 }
 
 .btn-danger {
-  @apply bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200;
+  @apply bg-[#DC2626] text-white font-medium px-4 py-2 rounded-md hover:bg-[#b91c1c] transition-colors duration-200 shadow-sm active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-400;
 }
 
 .btn-success {
-  @apply bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200;
+  @apply bg-[#16A34A] text-white font-medium px-4 py-2 rounded-md hover:bg-[#15803d] transition-colors duration-200 shadow-sm active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-400;
 }
 
 .card {
-  @apply bg-white rounded-xl shadow-sm p-6;
+  @apply bg-white rounded-lg shadow-sm border border-[#FAD4C0]/40 p-6 transition-all duration-200 hover:shadow-md;
 }
 
 .input {
-  @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply w-full px-4 py-2 bg-white border border-[#80A1C1]/40 rounded-md text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#80A1C1] focus:border-transparent transition-all;
 }
 
 .label {
-  @apply block text-sm font-medium text-gray-700 mb-1;
+  @apply block text-sm font-medium text-[#111827] mb-1 font-mono text-xs uppercase tracking-wider;
 }
 
 .badge {
-  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-semibold font-mono tracking-tight;
 }
 
 .badge-success {
-  @apply badge bg-green-100 text-green-800;
+  @apply badge bg-[#16A34A]/15 text-[#16A34A] border border-[#16A34A]/30;
 }
 
 .badge-warning {
-  @apply badge bg-yellow-100 text-yellow-800;
+  @apply badge bg-[#D97706]/15 text-[#D97706] border border-[#D97706]/30;
 }
 
 .badge-danger {
-  @apply badge bg-red-100 text-red-800;
+  @apply badge bg-[#DC2626]/15 text-[#DC2626] border border-[#DC2626]/30;
 }
 
 .badge-info {
-  @apply badge bg-blue-100 text-blue-800;
+  @apply badge bg-[#80A1C1]/20 text-[#2c5270] border border-[#80A1C1]/40;
 }
 
 .badge-gray {
-  @apply badge bg-gray-100 text-gray-800;
+  @apply badge bg-gray-100 text-gray-700 border border-gray-300;
 }

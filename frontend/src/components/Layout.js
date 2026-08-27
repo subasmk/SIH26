@@ -40,44 +40,56 @@ const Layout = ({ children }) => {
   const navItems = getNavItems();
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-blue-900 min-h-screen fixed left-0 top-0 transition-all duration-300`}>
-        <div className="p-4 border-b border-blue-800">
+    <div className="min-h-screen bg-[#FFF5E6] text-[#111827]">
+      <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-white border-r border-[#FAD4C0] min-h-screen fixed left-0 top-0 transition-all duration-300 z-30 shadow-sm`}>
+        <div className="p-4 border-b border-[#FAD4C0]/60">
           <div className="flex items-center justify-between">
-            {sidebarOpen && <h1 className="text-white text-xl font-bold">SmartInspect</h1>}
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-white p-2">
+            {sidebarOpen && (
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-md bg-[#FAD4C0] flex items-center justify-center font-bold text-[#111827] text-lg shadow-sm">
+                  S
+                </div>
+                <h1 className="text-[#111827] text-lg font-bold tracking-tight">SmartInspect</h1>
+              </div>
+            )}
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-[#80A1C1] hover:text-[#111827] p-1.5 rounded-md hover:bg-[#FFF5E6] transition-colors">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
           </div>
         </div>
-        <nav className="mt-4">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex items-center px-4 py-3 text-gray-300 hover:bg-blue-800 hover:text-white transition-colors ${
-                location.pathname === item.path ? 'bg-blue-800 text-white' : ''
-              }`}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-              </svg>
-              {sidebarOpen && <span className="ml-3">{item.label}</span>}
-            </Link>
-          ))}
+        <nav className="mt-4 px-2 space-y-1">
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-all ${
+                  isActive
+                    ? 'bg-[#FAD4C0] text-[#111827] font-semibold shadow-sm'
+                    : 'text-[#111827]/70 hover:bg-[#FFF5E6] hover:text-[#111827]'
+                }`}
+              >
+                <svg className={`w-5 h-5 ${isActive ? 'text-[#111827]' : 'text-[#80A1C1]'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                </svg>
+                {sidebarOpen && <span className="ml-3">{item.label}</span>}
+              </Link>
+            );
+          })}
         </nav>
       </div>
       <div className={`${sidebarOpen ? 'ml-64' : 'ml-20'} transition-all duration-300`}>
-        <header className="bg-white shadow-sm px-6 py-4 flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-800">
+        <header className="bg-white/80 backdrop-blur-md border-b border-[#FAD4C0]/50 px-6 py-4 flex justify-between items-center sticky top-0 z-20 shadow-xs">
+          <h2 className="text-xl font-bold text-[#111827]">
             {navItems.find(item => item.path === location.pathname)?.label || 'SmartInspect'}
           </h2>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">{user?.name}</span>
+            <span className="text-sm font-medium text-[#111827]">{user?.name}</span>
             <span className="badge badge-info">{user?.role}</span>
-            <button onClick={handleLogout} className="btn-danger text-sm">
+            <button onClick={handleLogout} className="btn-danger text-xs px-3 py-1.5">
               Logout
             </button>
           </div>
