@@ -28,8 +28,4 @@ services:
     staticPublishPath: ./frontend/build
     envVars:
       - key: REACT_APP_API_URL
-        fromService:
-          type: web
-          name: smartinspect-backend
-          property: url
-          suffix: /api
+        sync: false
